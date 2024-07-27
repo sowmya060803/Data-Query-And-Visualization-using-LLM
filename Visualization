@@ -1,0 +1,127 @@
+import streamlit as st
+from sqlalchemy import create_engine, Table, MetaData, text
+from sqlalchemy.orm import sessionmaker
+import os
+from dotenv import load_dotenv
+import openai
+from openai import Completion
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Load environment variables
+load_dotenv()
+openai_api_key = os.getenv('openai.api_key')
+openai.api_key = openai_api_key
+# Database connection details (replace with your credentials)
+engine = create_engine('mysql+pymysql://root:Sowmya060803@localhost:3306/comapny', echo=False)
+metadata = MetaData()
+
+# Reflect the existing table
+companysales = Table('companysales', metadata, autoload_with=engine)
+
+def generate_sql_query(user_input):
+    """Generates an SQL query based on user input using OpenAI's ChatGPT.
+
+    Args:
+        user_input (str): The user's query for an SQL query.
+
+    Returns:
+        str: The generated SQL query (or None if an error occurs).
+    """
+
+    if not user_input:
+        return "Please enter a valid query."  # Handle empty input
+
+    prompt = f"Convert the following user request to an SQL query for the 'companysales' table: {user_input}"
+
+    try:
+        response = openai.Completion.create(
+            model="gpt-3.5-turbo-instruct",
+            prompt=prompt,
+            max_tokens=100,
+            temperature=0.7
+        )
+        print("OpenAI Response:", response)
+        return response.choices[0].text.strip()
+    except openai.error.OpenAIError as e:
+        print(f"Error generating query: {e}")
+        return None
+    except Exception as e:
+        print(f"Unknown error: {e}")
+        return None
+
+# Create a session and execute the query
+Session = sessionmaker(bind=engine)
+session = Session()
+
+def execute_query(sql_query):
+    """Executes a provided SQL query and returns the results.
+
+    Args:
+        sql_query (str): The SQL query to execute.
+
+    Returns:
+        list: A list of tuples containing the query results.
+    """
+
+    try:
+        result = session.execute(text(sql_query))
+        return result.fetchall()
+    except Exception as e:  # Catch general exceptions for database errors
+        print(f"Error executing query: {e}")
+        return []
+
+def visualize_data(data, chart_type):
+    """Visualizes the data using a specified chart type.
+
+    Args:
+        data (list): A list of tuples containing the query results.
+        chart_type (str): The type of chart to generate (bar, pie, line, etc.).
+
+    Returns:
+        fig: A matplotlib figure object.
+    """
+
+    df = pd.DataFrame(data)
+
+    if chart_type == "bar":
+        fig, ax = plt.subplots()
+        df.plot(kind='bar', ax=ax)
+    elif chart_type == "pie":
+        fig, ax = plt.subplots()
+        df.plot(kind='pie', ax=ax, autopct='%1.1f%%', legend=False)
+    elif chart_type == "line":
+        fig, ax = plt.subplots()
+        df.plot(kind='line', ax=ax)
+    elif chart_type == "histogram":
+        fig, ax = plt.subplots()
+        df.hist(ax=ax)
+    else:
+        fig = None
+
+    return fig
+
+# Streamlit interface
+st.title("CompanySales")
+
+user_input = st.text_area("Enter your query:", height=100)
+
+if st.button("Generate SQL Query"):
+    sql_query = generate_sql_query(user_input)
+    st.write("Generated SQL Query:")
+    st.code(sql_query)
+
+    if sql_query:
+        results = execute_query(sql_query)
+        st.write("Query Results:")
+        for row in results:
+            st.write(row)
+
+        chart_type = st.selectbox("Select a chart type:", ["bar", "pie", "line", "histogram"])
+        fig = visualize_data(results, chart_type)
+        if fig:
+            st.pyplot(fig)
+
+if st.button("Exit"):
+    st.write("Thank you for visiting!")
+    st.stop()
