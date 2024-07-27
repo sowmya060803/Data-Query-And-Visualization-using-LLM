@@ -1,0 +1,23 @@
+CREATE SCHEMA `companysales`;
+CREATE TABLE `comapny`.`companysales` (
+  `ExpenditureID` INT NOT NULL,
+  `CompanyName` VARCHAR(45) NOT NULL,
+  `AnnualIncome` INT NOT NULL,
+  `ExpenseType` VARCHAR(45) NOT NULL,
+  `Amount` INT NOT NULL,
+  `Year` INT NOT NULL,
+  `Department` VARCHAR(45) NOT NULL,
+  `PaymentMethod` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`ExpenditureID`));
+INSERT INTO `comapny`.`companysales` (`ExpenditureID`, `CompanyName`, `AnnualIncome`, `ExpenseType`, `Amount`, `Year`, `Department`, `PaymentMethod`) VALUES ('1', 'Kellogg\'s', '9500000', 'Research', '890000', '2019', 'IT', 'Online Payment');
+INSERT INTO `comapny`.`companysales` (`ExpenditureID`, `CompanyName`, `AnnualIncome`, `ExpenseType`, `Amount`, `Year`, `Department`, `PaymentMethod`) VALUES ('2', 'Mars', '8790000', 'Insurance', '789000', '2018', 'HR', 'ACH Payment');
+INSERT INTO `comapny`.`companysales` (`ExpenditureID`, `CompanyName`, `AnnualIncome`, `ExpenseType`, `Amount`, `Year`, `Department`, `PaymentMethod`) VALUES ('3', 'Coca- cola', '7895000', 'Shipping', '900000', '2021', 'QA', 'Credit Card');
+INSERT INTO `comapny`.`companysales` (`ExpenditureID`, `CompanyName`, `AnnualIncome`, `ExpenseType`, `Amount`, `Year`, `Department`, `PaymentMethod`) VALUES ('4', 'Nestle', '8090000', 'Markerting', '789000', '2024', 'UX', 'Net30');
+INSERT INTO `comapny`.`companysales` (`ExpenditureID`, `CompanyName`, `AnnualIncome`, `ExpenseType`, `Amount`, `Year`, `Department`, `PaymentMethod`) VALUES ('5', 'Cisco', '8990000', 'Adversting', '989000', '2022', 'Devops', 'Check');
+INSERT INTO `comapny`.`companysales` (`ExpenditureID`, `CompanyName`, `AnnualIncome`, `ExpenseType`, `Amount`, `Year`, `Department`, `PaymentMethod`) VALUES ('6', 'Mc Donald\'s', '7899900', 'Security', '880000', '2020', 'Technical Lead', 'PayPal');
+INSERT INTO `comapny`.`companysales` (`ExpenditureID`, `CompanyName`, `AnnualIncome`, `ExpenseType`, `Amount`, `Year`, `Department`, `PaymentMethod`) VALUES ('7', 'Visa', '9000000', 'Supplies', '790000', '2024', 'HR', 'Net60');
+INSERT INTO `comapny`.`companysales` (`ExpenditureID`, `CompanyName`, `AnnualIncome`, `ExpenseType`, `Amount`, `Year`, `Department`, `PaymentMethod`) VALUES ('8', 'AT&T', '700000', 'Wages', '890000', '2021', 'IT', 'Debit Card');
+INSERT INTO `comapny`.`companysales` (`ExpenditureID`, `CompanyName`, `AnnualIncome`, `ExpenseType`, `Amount`, `Year`, `Department`, `PaymentMethod`) VALUES ('9', 'MaterCard', '899000', 'Markerting', '789000', '2020', 'Technical', 'Check');
+INSERT INTO `comapny`.`companysales` (`ExpenditureID`, `CompanyName`, `AnnualIncome`, `ExpenseType`, `Amount`, `Year`, `Department`, `PaymentMethod`) VALUES ('10', 'PepsiCo', '890000', 'Shipping', '89000', '2020', 'HR', 'Check');
+INSERT INTO `comapny`.`companysales` (`ExpenditureID`, `CompanyName`, `AnnualIncome`, `ExpenseType`, `Amount`, `Year`, `Department`, `PaymentMethod`) VALUES ('11', 'Caterpillar', '909000', 'Research', '89900', '2024', 'QA', 'ACH Payment');
+Select * from comapny.companysales;
