@@ -1,0 +1,77 @@
+from sqlalchemy import create_engine, Table, MetaData, text
+from sqlalchemy.orm import sessionmaker
+import openai
+from openai import Completion
+from dotenv import load_dotenv
+import os
+
+
+engine = create_engine('mysql+pymysql://root:Sowmya060803@localhost:3306/new', echo=False)
+metadata = MetaData()
+
+# Reflect the existing tables
+customers = Table('customers', metadata, autoload_with=engine)
+orderss = Table('orderss', metadata, autoload_with=engine)
+products = Table('products', metadata, autoload_with=engine)
+sales = Table('sales', metadata, autoload_with=engine)
+
+load_dotenv()
+openai_api_key = os.getenv('OPENAI_API_KEY')
+if openai_api_key is None:
+    raise ValueError("API key not found. Ensure the .env file is correctly set up.")
+openai.api_key = openai_api_key
+
+
+def generate_sql_query(user_input):
+    prompt = f"Convert the following user request to an SQL query according to the columns of the 'customers','orders','products','suppliers' tables. The columns for customers table are 'CustomerID','FirstName','LastName','Email','Phone','Address'. The columns for orders table are  'ord_no','purch_amt','ord_date','cust_id','salesman_id','productID'. The columns for products table are 'ProductID','ProductName','ProductDescription','SupplierID','UnitPrice','UnitsInStock'. The columns for suppliers table are 'SupplierID','CompanyName','ContactName','ContactTitle','Address','Phone': {user_input}"
+    response = openai.Completion.create(
+        model="gpt-3.5-turbo-instruct",
+        prompt=prompt,
+        max_tokens=100,
+        temperature=0.7
+    )
+    generated_query = response.choices[0].text.strip()
+
+    # Basic validation for query relevance (simple heuristic)
+    keywords = ['SELECT', 'FROM']
+    is_valid_query = all(keyword in generated_query.upper() for keyword in keywords)
+
+    return generated_query, is_valid_query
+
+
+# Step 3: Create a session and execute the query
+Session = sessionmaker(bind=engine)
+session = Session()
+
+
+def execute_query(sql_query):
+    try:
+        result = session.execute(text(sql_query))
+        return result.fetchall()
+    except Exception as e:
+        return str(e)
+
+
+# Example user input
+user_input = input("Please enter your query: ")
+
+# Generate SQL query from user input
+sql_query, is_valid_query = generate_sql_query(user_input)
+
+# Display the generated SQL query
+print(f"SQL query generated: {sql_query}")
+
+# Check if the query is valid and execute it if so
+if is_valid_query:
+    results = execute_query(sql_query)
+    if isinstance(results, str):
+        print("The query could not be executed. It may not be related to the database schema.")
+        print(f"Error details: {results}")
+    elif results:
+        print("Output:")
+        for row in results:
+            print(row)
+    else:
+        print("No results found.")
+else:
+    print("The input is not related to the database schema or generated an invalid query.")
